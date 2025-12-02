@@ -1,0 +1,91 @@
+// ... existing code ...
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model vehicle {
+  // ... existing code ...
+  id            Int      @id @default(autoincrement())
+  slug          String   @unique
+  criadoem      DateTime @default(now())
+  atualizadoem  DateTime @updatedAt
+  
+  idExterno     Int?     @unique
+  marca         String
+  modelo        String
+  versao        String?  @db.Text
+  anoFabricacao Int?
+  anoModelo     Int?
+  preco         Float
+  quilometragem Int?
+  placa         String?  @unique
+  chassi        String?  @unique
+  cor           String?
+  portas        Int?
+  
+  tipo          String?
+  motor         String?
+  potencia      String?
+  cilindrada    String?
+  combustivel   String?
+  cambio        String?
+  categoria     String?
+  
+  filialApelido String?
+  cidade        String?
+  dataEntradaEstoque DateTime?
+  dataAtualizacao    DateTime?
+  destaque Boolean @default(false)
+  codigoFipe    String?
+  valorFipe     Float?
+  
+  descricao     String?  @db.Text
+  opcionais     String[]
+  fotos         String[]
+  
+  informacoesAdicionais Json?
+  dadosapi              Json?
+  
+  // Relação com logs de acesso (opcional, para saber qual carro foi mais visto)
+  logs          analytics_log[]
+}
+
+model user {
+  id       Int      @id @default(autoincrement())
+  nome     String
+  email    String   @unique
+  senha    String
+  criadoem DateTime @default(now())
+}
+
+model configsite {
+  id          Int      @id @default(autoincrement())
+  banner      Json?
+  sobrenos    String?
+  whatsapp    String?
+  
+  apiUrl      String?  
+  apiType     String?  // <--- ADICIONE ESTE CAMPO (Ex: 'ALTIMUS', 'AUTOCERTO')
+  scripts     Json?    
+  
+  criadoem    DateTime @default(now())
+}
+
+// --- NOVO MODELO PARA ANALYTICS ---
+model analytics_log {
+  id        Int      @id @default(autoincrement())
+  tipo      String   // 'page_view', 'whatsapp_click', 'share_click'
+  url       String?  // Qual página foi acessada
+  metadata  Json?    // Dados extras (ex: userAgent, origem)
+  
+  veiculo   vehicle? @relation(fields: [veiculoId], references: [id])
+  veiculoId Int?
+  
+  criadoem  DateTime @default(now())
+}
