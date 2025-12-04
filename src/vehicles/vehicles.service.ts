@@ -308,7 +308,7 @@ export class VehiclesService {
       };
     } catch (error) {
       console.error("Erro no sync:", error);
-      return { success: false, message: 'Erro ao processar JSON: ' + error.message };
+      return { success: false, message: 'Erro ao processar JSON: ' + (error instanceof Error ? error.message : String(error)) };
     }
   }
 }
