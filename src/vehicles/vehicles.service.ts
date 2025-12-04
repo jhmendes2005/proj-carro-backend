@@ -85,18 +85,47 @@ export class VehiclesService {
     });
   }
 
-  async getFilterBrands() {
-    const brands = await this.prisma.vehicle.findMany({ select: { marca: true }, distinct: ['marca'], orderBy: { marca: 'asc' } });
+  // --- FILTROS DINÂMICOS ATUALIZADOS ---
+
+  async getFilterBrands(type?: string) {
+    const where: any = {};
+    if (type) where.tipo = { contains: type, mode: 'insensitive' };
+
+    const brands = await this.prisma.vehicle.findMany({ 
+        where,
+        select: { marca: true }, 
+        distinct: ['marca'], 
+        orderBy: { marca: 'asc' } 
+    });
     return brands.map(v => v.marca);
   }
 
-  async getFilterModels(brand: string) {
-    const models = await this.prisma.vehicle.findMany({ where: { marca: brand }, select: { modelo: true }, distinct: ['modelo'], orderBy: { modelo: 'asc' } });
+  async getFilterModels(brand?: string, type?: string) {
+    const where: any = {};
+    if (brand) where.marca = { contains: brand, mode: 'insensitive' };
+    if (type) where.tipo = { contains: type, mode: 'insensitive' };
+
+    const models = await this.prisma.vehicle.findMany({ 
+        where, 
+        select: { modelo: true }, 
+        distinct: ['modelo'], 
+        orderBy: { modelo: 'asc' } 
+    });
     return models.map(v => v.modelo);
   }
 
-  async getFilterYears() {
-    const years = await this.prisma.vehicle.findMany({ select: { anoModelo: true }, where: { anoModelo: { not: null } }, distinct: ['anoModelo'], orderBy: { anoModelo: 'desc' } });
+  async getFilterYears(brand?: string, model?: string, type?: string) {
+    const where: any = { anoModelo: { not: null } };
+    if (brand) where.marca = { contains: brand, mode: 'insensitive' };
+    if (model) where.modelo = { contains: model, mode: 'insensitive' };
+    if (type) where.tipo = { contains: type, mode: 'insensitive' };
+
+    const years = await this.prisma.vehicle.findMany({ 
+        select: { anoModelo: true }, 
+        where, 
+        distinct: ['anoModelo'], 
+        orderBy: { anoModelo: 'desc' } 
+    });
     return years.map(v => v.anoModelo).filter(Boolean) as number[];
   }
 
